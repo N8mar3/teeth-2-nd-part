@@ -18,7 +18,7 @@ class LossFunction:
     def forward(self):
         if self.semantic_binary:
             return self.dice_loss(self.prediction, self.target)
-        return self.categorical_dice_loss(self.prediction, self.target)
+        return self.categorical_dice_loss()
 
     @staticmethod
     def dice_loss(predictions, targets, alpha=1e-5):
@@ -30,8 +30,8 @@ class LossFunction:
 
         return dice_loss
 
-    def categorical_dice_loss(self, prediction, target):
-        pr, tr = self.prepare_for_multiclass_loss_f(prediction, target)
+    def categorical_dice_loss(self):
+        pr, tr = self.prepare_for_multiclass_loss_f()
         losses = 0
         for num_category in range(self.num_classes):
             categorical_target = torch.where(tr == num_category, 1, 0)
@@ -40,10 +40,9 @@ class LossFunction:
 
         return losses
 
-    @staticmethod
-    def prepare_for_multiclass_loss_f(prediction, target):
-        prediction_prepared = torch.squeeze(prediction, 0)
-        target_prepared = torch.squeeze(target, 0)
+    def prepare_for_multiclass_loss_f(self):
+        prediction_prepared = torch.squeeze(self.prediction, 0)
+        target_prepared = torch.squeeze(self.target, 0)
         target_prepared = torch.squeeze(target_prepared, 0)
         target_prepared = torch.argmax(target_prepared, 0)
 
